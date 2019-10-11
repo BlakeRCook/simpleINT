@@ -1,0 +1,15 @@
+{
+    "assignmentID": 2535,
+    "problems": {
+        "cs3520-sml-interp-simple": {
+            "id": 123,
+            "step": 1,
+            "whitelist": {
+                "ast.sml": true,
+                "eval.sml": true,
+                "parse.sml": true,
+                "simple.sml": true
+            }
+        }
+    }
+}

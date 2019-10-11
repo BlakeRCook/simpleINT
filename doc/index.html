@@ -1,0 +1,114 @@
+<html><head></head><body><h1>Interpreter for a simple expression language</h1>
+
+<p>You will write the evaluator for a simple language. The data types
+for the abstract syntax tree are provided, as is a parser and the
+code that drives the read-eval-print loop (REPL):</p>
+
+<ul>
+<li><code>ast.sml</code>: data types for the abstract syntax tree</li>
+<li><code>parse.sml</code>: the parser</li>
+<li><code>simple.sml</code>: the tokenizer and main read-eval-print loop</li>
+<li><code>eval.sml</code>: you should write the evaluator here</li>
+</ul>
+
+<p>The grammar for the language is provided here:</p>
+
+<pre><code>input           -&gt;  expression | fundef
+fundef          -&gt;  ( define function arglist expression )
+arglist         -&gt;  ( variable* )
+expression      -&gt;  value
+                 |  variable
+                 |  ( if expression expression expression )
+                 |  ( while expression expression )
+                 |  ( set variable expression )
+                 |  ( begin expression+ )
+                 |  ( optr expression* )
+optr            -&gt;  function | value-op
+value           -&gt;  integer
+value-op        -&gt;  + | - | * | / | = | &lt; | &gt; | print
+function        -&gt;  name
+variable        -&gt;  name
+integer         -&gt;  sequence of digits, possibly preceded by minus sign
+name            -&gt;  any sequence of characters not an integer, and not
+                    containing a blank or any of the following characters:
+                    ( ) ;.
+</code></pre>
+
+<p>A function cannot be one of the “keywords” define, if, while, begin,
+or set, or any of the value-op&#39;s. Aside from this, names can use any
+characters on the keyboard. Comments are introduced by the
+character &#39;;&#39; and continue to the end of the line; this is why &#39;;&#39;
+cannot occur within a name. A session is terminated by entering
+“quit”; thus it is highly inadvisable to use this name for a
+variable.</p>
+
+<h2>The details</h2>
+
+<p>You must write the <code>eval</code> function that evaluates an expression in
+the simple language. It&#39;s type signature is:</p>
+
+<pre><code>fn: (string * int) list * expression -&gt; (string * int) list * int
+</code></pre>
+
+<p>The <code>eval</code> function accepts a pair containing an environment, i.e.,
+the local variables (called <em>rho</em>), and the expression to evaluate.
+It returns the updated environment (with any changes made during
+evaluation) and the result value (an integer).</p>
+
+<p>Expression evaluation depends on the specific kind of expression.
+See <code>ast.sml</code> for the type definitions:</p>
+
+<ul>
+<li><p><code>ValExp</code>: if the input is a value, simply return the value (the
+integer stored inside the <code>ValExp</code> instance).</p></li>
+
+<li><p><code>VarExp</code>: if the input is a variable, look it up in the local
+environment and return the value found. If it is not present in
+the local environment, try the global environment. If it is not
+present there, signal an error by raising a RuntimeError with a
+suitable message.</p></li>
+
+<li><p><code>IfExp</code>: evaluate the condition. If the result is a true
+value (anything other than zero), evaluate and return the
+“then” branch. Otherwise, evaluate and return the “else”
+branch.</p></li>
+
+<li><p><code>WhileExp</code>: evaluate the condition. If the result is false
+(zero) then return zero, otherwise evaluate the body and
+repeat.</p></li>
+
+<li><p><code>SetExp</code>: evaluate the value. If the variable name is present in
+the local environment, then store the value there. If not, store
+it in the global environment. Return the value.</p></li>
+
+<li><p><code>BeginExp</code>: evaluate all of the expressions in order and return
+the result of evaluating the last one.</p></li>
+
+<li><p><code>BinaryBuiltinExp</code> and <code>UnaryBuiltinExp</code> primitive operations:</p>
+
+<ul>
+<li><p><code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>: evaluate the arguments and
+apply the appropriate operation on the resulting numbers and
+return the result.</p></li>
+
+<li><p><code>=</code>, <code>&gt;</code>, <code>&lt;</code>: evaluate the two arguments and compare them
+as appropriate for the operator. Return one for true and
+zero for false.</p></li>
+
+<li><p><code>print</code>: evaluate the single argument, convert it to a
+string, and print it followed by a newline. Return the value
+of the argument.</p></li>
+</ul></li>
+
+<li><p>User-defined functions: get the named function from the
+global list of functions (it is an error if the function
+does not exist). Make sure the number of arguments passed in
+matches the number of formal parameters in the function
+definition.</p>
+
+<p>Create a new environment where the keys are the formal
+parameter names and the values are the evaluated arguments.
+Use this new environment when you evaluate the body of the
+function. Return the result.</p></li>
+</ul>
+</body></html>
